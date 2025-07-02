@@ -71,7 +71,7 @@ const Home = () => {
       <div className="flex flex-col justify-center items-start h-full">
         <h2 className="text-3xl sm:text-4xl md:text-4xl font-bold font-serif text-black leading-tight mb-2">
           Understand Your Health Reports,
-          <span className="ml-2 italic text-[#997156] font-semibold">With Clarity</span>
+          <span className="ml-2 italic text-[#997156] font-semibold animate-pulse">With Clarity</span>
         </h2>
         <hr className="w-full border-t-2 border-gray-300 my-4" />
         <div className="text-base sm:text-lg md:text-2xl font-sans text-gray-700">
