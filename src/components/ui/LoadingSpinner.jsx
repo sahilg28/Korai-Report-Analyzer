@@ -1,7 +1,9 @@
-import React from "react";
+import React from 'react';
 
 const LoadingSpinner = () => (
-  <div className="loading-pulse w-8 h-8 rounded-full border-4 border-b-0 border-[#8B7355] animate-spin mx-auto" aria-label="Loading" />
+  <div className="flex justify-center items-center">
+    <div className="w-6 h-6 border-4 border-[#8B7355] border-t-transparent rounded-full animate-spin" aria-label="Loading"></div>
+  </div>
 );
- 
+
 export default LoadingSpinner; 

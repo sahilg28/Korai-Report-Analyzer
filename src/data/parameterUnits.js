@@ -1,0 +1,56 @@
+// parameterUnits.js
+
+export const parameterUnits = {
+    'Total RBC count': '×10^6/µL',
+    'Hemoglobin': 'g/dL',
+    'Hematocrit': '%',
+    'MCV': 'fL',
+    'MCH': 'pg',
+    'MCHC': 'g/dL',
+    'RDW': '%',
+    'Total WBC count': '×10^3/µL',
+    'Neutrophils': '%',
+    'Lymphocytes': '%',
+    'Monocytes': '%',
+    'Eosinophils': '%',
+    'Basophils': '%',
+    'Platelets': '×10^3/µL',
+    'ESR': 'mm/hr',
+  
+    'Glucose': 'mg/dL',
+    'Urea': 'mg/dL',
+    'BUN': 'mg/dL',
+    'Creatinine': 'mg/dL',
+    'UricAcid': 'mg/dL',
+    'Sodium': 'mmol/L',
+    'Potassium': 'mmol/L',
+    'Chloride': 'mmol/L',
+    'Bicarbonate': 'mmol/L',
+    'Calcium': 'mg/dL',
+    'Magnesium': 'mEq/L',
+    'Phosphorus': 'mg/dL',
+  
+    'ALT': 'U/L',
+    'AST': 'U/L',
+    'ALP': 'U/L',
+    'Bilirubin_Total': 'mg/dL',
+    'Bilirubin_Direct': 'mg/dL',
+    'Albumin': 'g/dL',
+    'TotalProtein': 'g/dL',
+  
+    'Cholesterol': 'mg/dL',
+    'LDL': 'mg/dL',
+    'HDL': 'mg/dL',
+    'Triglycerides': 'mg/dL',
+    'VLDL': 'mg/dL',
+  
+    'TSH': 'µIU/mL',
+    'T3': 'ng/dL',
+    'T4': 'µg/dL',
+  
+    'CRP': 'mg/L',
+    'Ferritin': 'ng/mL',
+    'VitaminB12': 'pg/mL',
+    'VitaminD': 'ng/mL',
+  };
+  

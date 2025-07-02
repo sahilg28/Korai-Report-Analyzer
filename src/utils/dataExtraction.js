@@ -1,83 +1,52 @@
-// Data extraction and regex logic will be implemented here. 
+// dataExtraction.js
+// Utility to extract patient info and parameters from text
+import { normalRanges } from '../data/normalRanges';
+import { parameterUnits } from '../data/parameterUnits';
 
-// Regex patterns for Indian lab reports
-const labPatterns = {
-  hba1c: [
-    /(?:hba1c|hb\s*a1c|glycated\s*hemoglobin)[:\s]*(\d+\.?\d*)\s*(%|percent)/i,
-    /hemoglobin\s*a1c[:\s]*(\d+\.?\d*)\s*%/i
-  ],
-  totalCholesterol: /(?:total\s*)?cholesterol[:\s]*(\d+)\s*mg[\/\s]*dl/i,
-  hdlCholesterol: /hdl[:\s]*(\d+)\s*mg[\/\s]*dl/i,
-  ldlCholesterol: /ldl[:\s]*(\d+)\s*mg[\/\s]*dl/i,
-  vitaminD: [
-    /vitamin\s*d[:\s]*(\d+\.?\d*)\s*ng[\/\s]*ml/i,
-    /25\s*oh\s*vitamin\s*d[:\s]*(\d+\.?\d*)/i,
-    /cholecalciferol[:\s]*(\d+\.?\d*)/i
-  ],
-  glucose: [
-    /(?:glucose|blood\s*sugar)[:\s]*(\d+)\s*mg[\/\s]*dl/i,
-    /fasting\s*glucose[:\s]*(\d+)/i,
-    /random\s*glucose[:\s]*(\d+)/i,
-    /pp\s*glucose[:\s]*(\d+)/i
-  ],
-  hemoglobin: /(?:hemoglobin|hb)(?!\s*a1c)[:\s]*(\d+\.?\d*)\s*g[\/\s]*dl/i,
-  tsh: /tsh[:\s]*(\d+\.?\d*)\s*(?:miu[\/\s]*ml|uiu[\/\s]*ml)/i,
-  t3: /t3[:\s]*(\d+\.?\d*)\s*ng[\/\s]*dl/i,
-  t4: /t4[:\s]*(\d+\.?\d*)\s*ug[\/\s]*dl/i,
-  sgpt: /(?:sgpt|alt)[:\s]*(\d+)\s*u[\/\s]*l/i,
-  sgot: /(?:sgot|ast)[:\s]*(\d+)\s*u[\/\s]*l/i,
-  creatinine: /creatinine[:\s]*(\d+\.?\d*)\s*mg[\/\s]*dl/i,
-  urea: /urea[:\s]*(\d+)\s*mg[\/\s]*dl/i
-};
-
-export const extractParametersFromText = (text) => {
-  const parameters = [];
-  for (const [name, pattern] of Object.entries(labPatterns)) {
-    if (Array.isArray(pattern)) {
-      for (const p of pattern) {
-        const match = text.match(p);
-        if (match) {
-          parameters.push({
-            name,
-            value: parseFloat(match[1]),
-            unit: match[2] || getDefaultUnit(name),
-            raw: match[0]
-          });
-          break;
-        }
-      }
-    } else {
-      const match = text.match(pattern);
-      if (match) {
-        parameters.push({
-          name,
-          value: parseFloat(match[1]),
-          unit: match[2] || getDefaultUnit(name),
-          raw: match[0]
-        });
-      }
+export const extractPatientInfo = (text) => {
+  // Try to extract Name, Age, Gender from the first 20 lines
+  const lines = text.split(/\r?\n/).slice(0, 20);
+  let name = null, age = null, gender = null;
+  for (const line of lines) {
+    if (!name) {
+      const m = line.match(/(?:Name|Patient Name)\s*[:\-]?\s*([A-Za-z .]+)/i);
+      if (m) name = m[1].trim();
+    }
+    if (!age) {
+      const m = line.match(/Age\s*[:\-]?\s*(\d{1,3})/i);
+      if (m) age = m[1].trim();
+    }
+    if (!gender) {
+      const m = line.match(/(?:Gender|Sex)\s*[:\-]?\s*([MFmaleFemale]+)/i);
+      if (m) gender = m[1].replace(/male/i, 'M').replace(/female/i, 'F').toUpperCase();
     }
   }
-  return parameters;
+  return { name, age, gender };
 };
 
-const getDefaultUnit = (name) => {
-  switch (name) {
-    case "hba1c": return "%";
-    case "totalCholesterol":
-    case "hdlCholesterol":
-    case "ldlCholesterol":
-    case "glucose":
-    case "urea":
-      return "mg/dL";
-    case "vitaminD": return "ng/mL";
-    case "hemoglobin": return "g/dL";
-    case "tsh": return "mIU/mL";
-    case "t3": return "ng/dL";
-    case "t4": return "ug/dL";
-    case "sgpt":
-    case "sgot": return "U/L";
-    case "creatinine": return "mg/dL";
-    default: return "";
+export const extractParameters = (text) => {
+  // Match lines like: Parameter 12.5 g/dl 13.5–17.5
+  const lines = text.split(/\r?\n/);
+  const params = [];
+  for (const line of lines) {
+    // Try to match: ParameterName Value Unit Range
+    const m = line.match(/([A-Za-z0-9\- ]+)\s+(\d+(?:\.\d+)?)\s*([a-zA-Z%/\^\d]*)\s+(\d+(?:\.\d+)?[–-]\d+(?:\.\d+)?)/);
+    if (m) {
+      const parameter = m[1].trim();
+      const value = parseFloat(m[2]);
+      // Always use data file if available
+      const unit = parameterUnits[parameter] || (m[3] ? m[3].trim() : null) || null;
+      const range = normalRanges[parameter] || null;
+      // Abnormal detection
+      let abnormal = false;
+      if (range && typeof value === 'number') {
+        const [low, high] = range.split(/[–-]/).map(Number);
+        if (!isNaN(low) && !isNaN(high)) {
+          if (value < low || value > high) abnormal = true;
+        }
+      }
+      params.push({ parameter, value, unit, range, abnormal });
+    }
   }
+  return params;
 }; 

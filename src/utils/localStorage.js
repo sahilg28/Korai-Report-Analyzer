@@ -1,17 +1,18 @@
-// Local storage helpers for report history will be implemented here. 
+// localStorage.js
 
-const STORAGE_KEY = "korai_lab_reports";
+const REPORTS_KEY = 'korai_reports';
 
-export function saveReport(report) {
-  const reports = getReports();
-  reports.push(report);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
-}
+export const saveReport = (report) => {
+  const reports = loadReports();
+  reports.unshift(report);
+  localStorage.setItem(REPORTS_KEY, JSON.stringify(reports.slice(0, 3)));
+};
 
-export function getReports() {
+export const loadReports = () => {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const data = localStorage.getItem(REPORTS_KEY);
+    return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
-} 
+}; 
